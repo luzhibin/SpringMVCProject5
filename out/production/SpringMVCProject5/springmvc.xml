@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop.xsd
+	http://www.springframework.org/schema/mvc
+    http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+	http://www.springframework.org/schema/tx
+	http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!--注解扫描-->
+    <context:component-scan base-package="web.controller"/>
+    <mvc:view-controller path="testView" view-name="/result.jsp"/>
+    <mvc:default-servlet-handler/><!--如果发现是静态资源的请求，就将该请求转由Web应用服务器默认的Servlet处理-->
+    <mvc:annotation-driven />
+
+    <!--配置视图解析器-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/view/"/><!--前缀-->
+        <property name="suffix" value=".jsp"/><!--后缀-->
+    </bean>
+
+    <!--上传文件配置-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="defaultEncoding" value="UTF-8"/><!--设置字符集编码-->
+        <property name="maxUploadSize" value="204800"/><!--设置最大上传容量-->
+    </bean>
+
+    <!--配置国际化信息-->
+    <bean class="org.springframework.context.support.ResourceBundleMessageSource">
+        <property name="basename" value="message"/>  <!--配置文件前缀为message value要保持一致-->
+    </bean>
+    <bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver"></bean>
+
+    <!--创建拦截器-->
+    <mvc:interceptors>
+        <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+            <property name="paramName" value="language"/>
+        </bean>
+
+        <!--自定义 拦截器-->
+        <!--拦截所有请求-->
+        <bean class="web.interceptor.MyFirstInterceptor"/>
+        <bean class="web.interceptor.MySecInterceptor"/>
+
+
+        <!--拦截指定请求-->
+        <mvc:interceptor>
+            <!--设置拦截哪些请求-->
+            <mvc:mapping path="/local"/>
+            <!--<mvc:exclude-mapping path=""/>--><!--除了path里的请求不拦截，其他都拦截-->
+            <bean class="web.interceptor.MyFirstInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+</beans>
